@@ -1,0 +1,148 @@
+body {
+    background: linear-gradient(135deg, #0f172a, #1e3a8a); /* Deep blue gradient background */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+}
+
+
+.container
+{
+  background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px); /* Frosted glass effect */
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 10px;
+    
+    gap: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  
+}
+
+#input
+{
+  background: transparent;
+  border:1px solid rgb(84, 120, 155);
+  border-radius: 9px;
+
+   
+    padding: 12px 20px;
+    color: white;
+    font-size: 16px;
+    width: 300px;
+}
+input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+#main_btn
+{
+  background: #3b82f6;
+    color: white;
+    margin-left: 5px;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s ease;
+    
+}
+
+button:hover {
+    background: #2563eb;
+    transform: translateY(-2px); /* Slight lift on hover */
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+#errorMsg
+{
+   background: rgba(255, 68, 68, 0.1); /* Subtle red tint */
+    border-left: 4px solid #ff4444;    /* Strong red accent line */
+    color: #ff9494;                   /* Soft red text color */
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 20px;
+    gap: 10px;
+     box-shadow: 0 0 15px rgba(255, 68, 68, 0.2);
+}
+
+#backendResponse
+{
+  color: 'green';
+   margin-top: '10px';
+}
+#Graph_Text
+{
+color:#b7ff09;
+font-weight: 700;
+}
+
+#Charts {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+.chart-item {
+  margin: 10px;
+}
+
+.spinner {
+  border: 5px solid #334155; /* Dark background ke hisaab se color */
+  border-top: 5px solid #3498db; /* Blue spinning color */
+  border-radius: 50%;
+  width: 50px; 
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto; /* Center karne ke liye */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+#loading_text {
+color: #ff0000; 
+font-weight: bold; 
+font-size: 20px; 
+margin-top: 15px;
+letter-spacing: 1px;
+}
+
+#analysis
+{
+  background-color: #1e293b; 
+  padding: 20px; 
+  color: white;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  border-radius: 10px; 
+}
+
+
+#classficationType
+{
+ display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 15px; 
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+}
+#chartSummary h3
+{
+margin: 0;
+ font-size: 1.2rem;
+color: #fff;
+}
