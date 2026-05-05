@@ -47,7 +47,7 @@ def extract_features(pcap_file):
             else:
                 histogram_buckets["1501+"] += 1
 
-            # Protocol counting (Baqi code purana hi hai)
+            # Protocol counting 
             if pkt.haslayer("DNSQR"):
                  stats["DNS"] += 1
                  try:
@@ -75,6 +75,6 @@ def extract_features(pcap_file):
         "max_packet_size": max_size,
         "unique_ips_count": len(unique_ips),
         "dns_queries": list(dns_queries)[:5],
-        # 👉 NAYA: Histogram data return karo
+       
         "histogram_counts": histogram_buckets 
     }

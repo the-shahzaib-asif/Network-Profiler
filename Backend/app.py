@@ -18,47 +18,31 @@ def get_ip_from_url(url):
     except Exception as e:
         return None
 
-@app.route('/api/analyze', methods=['POST'])
-def analyze_traffic():
-    data = request.get_json(force=True, silent=True)
-    url = data.get('url')
-    
+## BASE Funontion
+def get_website_stats(url, filename):
     target_ip = get_ip_from_url(url)
     if not target_ip:
-        return jsonify({"error": "Invalid URL. IP address nahi mila!"}), 400
+        raise Exception(f"Invalid URL. IP address not found for {url}!")
 
-    # Step 1: Capture traffic
-    pcap_filename = capture_traffic(target_ip, url, duration=10, filename="traffic.pcap")
-
-    # Step 2: Extract ALL features
-    features = extract_features(pcap_filename)
-    if not features:
-        return jsonify({"error": "Failed to extract features"}), 500
-    traffic_type = "Static / Simple Webpage"
+    capture_traffic(target_ip, url, duration=10, filename=filename)
+    features = extract_features(filename)
     
+    traffic_type = "Static / Simple Webpage"
     if features["total_bytes"] > 200000 or features["max_packet_size"] > 1400:
          traffic_type = "Streaming / Heavy Media"
     elif features["unique_ips_count"] >= 10:
          traffic_type = "Social Media / Complex Site"
 
-    # Step 3: Frontend ke liye JSON tayyar karna
-    protocol_stats = [{"name": k, "count": v} for k, v in features["protocol_counts"].items()]
-    
-    time_series = [
-        {"time": "3s", "bytes": features["total_bytes"] // 3},
-        {"time": "6s", "bytes": (features["total_bytes"] // 3) * 2},
-        {"time": "10s", "bytes": features["total_bytes"]}
-    ]
-    histogram_stats = [{"range": k, "count": v} for k, v in features["histogram_counts"].items()]
-
-    return jsonify({
-        "status": "success",
+    return {
         "target_url": url,
         "classification": traffic_type,
-        "protocol_stats": protocol_stats,
-        "time_series": time_series,
-       
-        "histogram_stats": histogram_stats, 
+        "protocol_stats": [{"name": k, "count": v} for k, v in features["protocol_counts"].items()],
+        "time_series": [
+            {"time": "3s", "bytes": features["total_bytes"] // 3},
+            {"time": "6s", "bytes": (features["total_bytes"] // 3) * 2},
+            {"time": "10s", "bytes": features["total_bytes"]}
+        ],
+        "histogram_stats": [{"range": k, "count": v} for k, v in features["histogram_counts"].items()],
         "summary": {
             "total_packets": features["total_packets"],
             "total_bytes": features["total_bytes"],
@@ -66,8 +50,47 @@ def analyze_traffic():
             "max_packet_size": features["max_packet_size"],
             "unique_ips": features["unique_ips_count"]
         }
-    }), 200
+    }
 
+
+@app.route('/api/analyze', methods=['POST'])
+def analyze_traffic():
+    data = request.get_json(force=True, silent=True)
+    url = data.get('url')
+    
+    if not url:
+        return jsonify({"error": "URl Required!!"}), 400
+
+    try:
+     
+        result = get_website_stats(url, "traffic.pcap")
+        result["status"] = "success"
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+## Compare ENd Point-
+@app.route('/api/compare', methods=['POST'])
+def compare_traffic():
+    data = request.get_json(force=True, silent=True)
+    url1 = data.get('url1')
+    url2 = data.get('url2')
+
+    if not url1 or not url2:
+        return jsonify({"error": "Enter Both Link!!!"}), 400
+
+    print(f"Starting comparison: {url1} vs {url2}")
+
+    
+    result1 = get_website_stats(url1, "traffic1.pcap")
+    result2 = get_website_stats(url2, "traffic2.pcap")
+
+    return jsonify({
+        "status": "success",
+        "website1": {"url": url1, "data": result1},
+        "website2": {"url": url2, "data": result2}
+    }), 200
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
 
