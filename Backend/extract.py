@@ -1,6 +1,7 @@
 from scapy.all import rdpcap, IP, TCP, UDP, DNSQR
 import statistics
 import os
+import math
 
 def extract_features(pcap_file):
     print(f"[*] Extracting features from {pcap_file}...")
@@ -14,7 +15,10 @@ def extract_features(pcap_file):
         print("Error reading pcap:", e)
         return None
         
-    stats = {"TCP": 0, "UDP": 0, "DNS": 0, "ICMP": 0, "Other": 0}
+    if len(packets) == 0:
+        return None
+
+    stats = {"HTTPS": 0, "HTTP": 0, "TCP": 0, "UDP": 0, "DNS": 0}
     total_bytes = 0
     packet_sizes = []
     unique_ips = set()
@@ -28,14 +32,21 @@ def extract_features(pcap_file):
         "1501+": 0
     }
 
+    start_time = float(packets[0].time)
+    timeline_dict = {i: 0 for i in range(11)}
+
     for pkt in packets:
+        current_second = math.floor(float(pkt.time) - start_time)
+
         if IP in pkt:
             size = len(pkt)
             total_bytes += size
             packet_sizes.append(size)
             unique_ips.add(pkt[IP].dst)
 
-           
+            if current_second <= 10:
+                timeline_dict[current_second] += size
+
             if size <= 100:
                 histogram_buckets["0-100"] += 1
             elif 101 <= size <= 500:
@@ -47,7 +58,6 @@ def extract_features(pcap_file):
             else:
                 histogram_buckets["1501+"] += 1
 
-            # Protocol counting 
             if pkt.haslayer("DNSQR"):
                  stats["DNS"] += 1
                  try:
@@ -55,26 +65,30 @@ def extract_features(pcap_file):
                     dns_queries.add(query_name)
                  except: pass
             elif TCP in pkt:
-                stats["TCP"] += 1
+                if pkt[TCP].dport == 443 or pkt[TCP].sport == 443:
+                    stats["HTTPS"] += 1
+                elif pkt[TCP].dport == 80 or pkt[TCP].sport == 80:
+                    stats["HTTP"] += 1
+                else:
+                    stats["TCP"] += 1
             elif UDP in pkt:
                 stats["UDP"] += 1
-            elif pkt.haslayer("ICMP"):
-                stats["ICMP"] += 1
-            else:
-                stats["Other"] += 1
 
-    # Math calculations
     mean_size = int(statistics.mean(packet_sizes)) if packet_sizes else 0
     max_size = max(packet_sizes) if packet_sizes else 0
     
+    clean_stats = {k: v for k, v in stats.items() if v > 0}
+    
+    time_series_data = [{"time": f"{sec}s", "bytes": timeline_dict[sec]} for sec in range(11)]
+    
     return {
-        "protocol_counts": stats,
+        "protocol_counts": clean_stats,
         "total_bytes": total_bytes,
         "total_packets": len(packet_sizes),
         "mean_packet_size": mean_size,
         "max_packet_size": max_size,
         "unique_ips_count": len(unique_ips),
         "dns_queries": list(dns_queries)[:5],
-       
-        "histogram_counts": histogram_buckets 
+        "histogram_counts": histogram_buckets,
+        "time_series": time_series_data 
     }

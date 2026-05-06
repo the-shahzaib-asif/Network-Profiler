@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import SummaryCard from './components/SummaryCard';
 import Charts from './components/Charts';
+import CompareCharts from './Components/CompareCharts';
 
 const App = () => {
   const [url1, setUrl1] = useState('');
@@ -129,35 +130,37 @@ const App = () => {
 
       {compareData && !loading && mode === 'compare' && (
         <div id="compareGraph">
-          {/* Spelling error fixed here */}
+         
           <h2 id="GraphText">Comparison Results</h2> 
-          <div id="graphResult">
-            <div id="web1">
-              <h3>{compareData.website1.url}</h3>
+          
+          <div id="graphResult" style={{ display: 'flex', justifyContent: 'space-around', gap: '20px' }}>
+            <div id="web1" style={{ flex: 1 }}>
+              <h3 style={{ color: '#00c49f' }}>{compareData.website1.url}</h3>
               <SummaryCard
                 summary={compareData.website1.data.summary}
                 classification={compareData.website1.data.classification}
               />
-              <Charts
-                protocolData={compareData.website1.data.protocol_stats}
-                timelineData={compareData.website1.data.time_series}
-                histogramData={compareData.website1.data.histogram_stats}
-              />
             </div>
 
-            <div id="web2">
-              <h3>{compareData.website2.url}</h3>
-              {/* SYNTAX ERROR FIXED HERE FOR WEB 2 */}
+            <div id="web2" style={{ flex: 1 }}>
+              <h3 style={{ color: '#0088fe' }}>{compareData.website2.url}</h3>
               <SummaryCard
                 summary={compareData.website2.data.summary} 
                 classification={compareData.website2.data.classification}
               />
-              <Charts
-                protocolData={compareData.website2.data.protocol_stats} 
-                timelineData={compareData.website2.data.time_series} 
-                histogramData={compareData.website2.data.histogram_stats}
-              />
             </div>
+          </div>
+
+          {/* NEW Combine/Merge Chart*/}
+          <div style={{ marginTop: '40px' }}>
+             <CompareCharts
+                hist1={compareData.website1.data.histogram_stats}
+                hist2={compareData.website2.data.histogram_stats}
+                time1={compareData.website1.data.time_series}
+                time2={compareData.website2.data.time_series}
+                site1Name={compareData.website1.url}
+                site2Name={compareData.website2.url}
+             />
           </div>
         </div>
       )}

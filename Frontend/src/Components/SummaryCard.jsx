@@ -3,6 +3,9 @@ import React from 'react';
 
 const SummaryCard = ({ summary,classification }) => {
       const trafficType = classification ? classification : "Unknown Traffic";
+      if (!summary) {
+    return <div><p>Loading summary data...</p></div>;
+  }
 
   return (
   <div id="analysis">

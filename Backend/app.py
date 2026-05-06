@@ -28,20 +28,19 @@ def get_website_stats(url, filename):
     features = extract_features(filename)
     
     traffic_type = "Static / Simple Webpage"
-    if features["total_bytes"] > 200000 or features["max_packet_size"] > 1400:
+    if features["total_bytes"] > 500000 and features["mean_packet_size"] > 800:
          traffic_type = "Streaming / Heavy Media"
     elif features["unique_ips_count"] >= 10:
          traffic_type = "Social Media / Complex Site"
+    elif features["mean_packet_size"] < 300 and features["total_packets"] > 50:
+         traffic_type = "API-Heavy"
 
     return {
         "target_url": url,
         "classification": traffic_type,
         "protocol_stats": [{"name": k, "count": v} for k, v in features["protocol_counts"].items()],
-        "time_series": [
-            {"time": "3s", "bytes": features["total_bytes"] // 3},
-            {"time": "6s", "bytes": (features["total_bytes"] // 3) * 2},
-            {"time": "10s", "bytes": features["total_bytes"]}
-        ],
+      
+        "time_series": features.get("time_series", []),
         "histogram_stats": [{"range": k, "count": v} for k, v in features["histogram_counts"].items()],
         "summary": {
             "total_packets": features["total_packets"],
