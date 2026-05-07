@@ -4,7 +4,7 @@ import time
 from scapy.all import sniff, wrpcap
 
 def generate_traffic(url):
-    time.sleep(1) # Thora delay taake sniff pehle shuru ho jaye
+    time.sleep(1)
     try:
         requests.get(url, timeout=5)
     except:
